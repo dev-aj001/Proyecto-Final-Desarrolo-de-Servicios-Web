@@ -13,8 +13,8 @@ const userResolvers = require('./resolvers/userResolver');
 
 const startServer = async () => {
   // Conectar a MongoDB
-  await mongoose.connect('mongodb://127.0.0.1:27017/test01?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.0');
-  
+  await mongoose.connect('mongodb+srv://admin:admin@cluster0.yelht.mongodb.net/tet01?retryWrites=true&w=majority&appName=Cluster0');
+
   const server = new ApolloServer({
     typeDefs: userTypeDefs,
     resolvers: userResolvers});

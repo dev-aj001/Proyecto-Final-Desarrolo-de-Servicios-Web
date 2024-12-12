@@ -12,14 +12,14 @@ const typeDefs = gql`
     # Definición del esquema de address
     type Address {
         zip: String!
-        street: String!
-        exterior: String!
-        interior: String!
-        neighborhood: String!
-        city: String!
-        municipality: String!
-        state: String!
-        country: String!
+        street: String
+        exterior: String
+        interior: String
+        neighborhood: String
+        city: String
+        municipality: String
+        state: String
+        country: String
     }
 
     # Definición del esquema de facturapi_customer
@@ -67,7 +67,6 @@ const typeDefs = gql`
     input FacturapiCustomerInput {
         legal_name: String!
         tax_id: String!
-        tax_system: String!
         address: AddressInput!
         email: String
         phone: String
@@ -107,7 +106,6 @@ const typeDefs = gql`
     input FacturapiCustomerUpdate {
         legal_name: String
         tax_id: String
-        tax_system: String
         address: AddressUpdate
         email: String
         phone: String
@@ -133,7 +131,7 @@ const typeDefs = gql`
         login(email: String!, password: String!): AuthPayload
 
         # Crear un nuevo cliente en Facturapi
-        createFacturapiCustomer(_id: ID!, customer: FacturapiCustomerInput!): FacturapiCustomer
+        createFacturapiCustomer(_id: ID!, customer: FacturapiCustomerInput!): User
         # Actualizar un cliente existente en Facturapi
         # updateFacturapiCustomer(_id: ID!, customer: FacturapiCustomerUpdate!): FacturapiCustomer
     }
