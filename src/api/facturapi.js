@@ -6,19 +6,11 @@ const facturapi = new Facturapi(process.env.FACTURAPI_SECRET_KEY);
 module.exports = {
     createProduct: async (product) => {
         const facturapiProduct = {
-            description: product.name,
+            description: product.description,
             product_key: product.product_key,
             price: product.price
         };
         return await facturapi.products.create(facturapiProduct);
-    },
-
-    updateProduct: async (_id, rest) => {
-        const facturapiProduct = {
-            ...rest,
-            description: rest.name || undefined,
-        };
-        return await facturapi.products.update(_id, facturapiProduct);
     },
 
 

@@ -29,6 +29,12 @@ const typeDefs = gql`
         product_key: String!
     }
 
+    # Definición de la entrada de imagen
+    input ImageInput {
+        url: String!
+        alt: String!
+    }
+
     # Definición de la entrada para la creacion del producto
     input ProductInput {
         name: String!
@@ -37,6 +43,7 @@ const typeDefs = gql`
         price: Float!
         stock: Int!
         category: Categories!
+        imgs: [ImageInput]!
         product_key: String!
     }
 
@@ -47,6 +54,7 @@ const typeDefs = gql`
         brand: String
         price: Float
         stock: Int
+        imgs: [ImageInput]
         category: Categories
     }
 
@@ -64,9 +72,9 @@ const typeDefs = gql`
         # Crear un nuevo producto
         createProduct(product: ProductInput!): Product
         # Actualizar un producto
-        updateProduct(id: ID!, product: ProductUpdateInput!): Product
+        updateProduct(_id: ID!, product: ProductUpdateInput!): Product
         # Eliminar un producto
-        deleteProduct(id: ID!): Product
+        deleteProduct(_id: ID!): Product
     }
 `;
 

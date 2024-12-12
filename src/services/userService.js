@@ -1,6 +1,5 @@
 const User = require('../models/userModel');
 const facturapi = require('../api/facturapi');
-const { get } = require('mongoose');
 
 async function getAllUsers() {
     return await User.find();
