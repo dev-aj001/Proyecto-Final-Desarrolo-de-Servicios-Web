@@ -101,34 +101,25 @@ const shoppingCartService = {
         }
     },
 
-    async addItemToCart(cartId, item ) {
+    async addItemToCart(cartId, product, quantity ) {
+        const user = await User.findById(cartInput.user);
+
+        if (!user) {
+            throw new Error("El usuario no existe.");
+        }
+        if (quantity <= 0) {
+            throw new Error("La cantidad debe ser mayor a 0.");
+        }
 
         const cart = await ShoppingCart.findById(cartId);
         if (!cart) {
             throw new Error("El carrito no existe.");
         }
 
-        const user = await User.findById(cart.user);
-
-        if (!user) {
-            throw new Error("El usuario no existe.");
-        }
-
-        const quantity = item.quantity;
-        console.log(quantity);
-
-        if (quantity <= 0) {
-            throw new Error("La cantidad debe ser mayor a 0.");
-        }
-
-        const product = item.product;
-
         const productData = await Product.findById(product);
         if (!productData) {
             throw new Error("El producto no existe.");
         }
-
-        console.log("productData", productData);
 
         if (quantity > productData.stock) {
             throw new Error(`Stock insuficiente para el producto '${productData.name}'.`);
@@ -154,8 +145,7 @@ const shoppingCartService = {
         cart.total = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
         cart.subTotal = cart.total/(1+cart.tax);
         await cart.save();
-
-        return await this.getShoppingCartById(cart._id);
+        return await cart.populate('user').populate('items.product');
     },
 
     async updateItemQuantity(cartId, productId, quantity) {
@@ -190,7 +180,7 @@ const shoppingCartService = {
         cart.total = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
         cart.subTotal = cart.total/(1+cart.tax);
         await cart.save();
-        return this.getShoppingCartById(cart._id);
+        return cart;
     },
 
     async removeItemFromCart(cartId, productId) {
@@ -261,11 +251,8 @@ const shoppingCartService = {
 
             const filePath = await facturapi.downloadInvoice(id);
 
-            const fileLink = await subir(filePath, "wasaaa-apicarrito-dsw", `facturas/${id}.zip`);
-
-            // Envía por correo
-            await sendEmailFactura(cart.user.email, fileLink);
-
+            subir(filePath, "wasaaa-apicarrito-dsw", `facturas/${id}.zip`);
+            
             cart.status = orderStatus.CONFIRMED;
             cart.isActive = false;
             cart.closedAt = new Date();
@@ -283,7 +270,10 @@ const subir = async (filePath, bucketName, key) => {
         // Sube a S3
         const fileLink = await uploadToS3(filePath, bucketName, key);
 
-        return fileLink;
+        // Envía por correo
+        await sendEmailFactura('arjaibanezpa@ittepic.edu.mx', fileLink);
+
+        console.log('Proceso completo');
     } catch (error) {
         console.error('Error en el proceso:', error);
     }

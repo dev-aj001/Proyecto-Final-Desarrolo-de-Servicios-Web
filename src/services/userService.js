@@ -25,7 +25,7 @@ async function createUser(UserInput) {
         await user.save();
     }
 
-    await sendEmail.sendEmail(user.email, user.name);
+    await sendEmail(user.email, user.name);
 
     return user;
 }
