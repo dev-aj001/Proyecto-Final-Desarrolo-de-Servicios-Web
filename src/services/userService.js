@@ -1,5 +1,7 @@
 const User = require('../models/userModel');
 const facturapi = require('../api/facturapi');
+const { sendWhatsappMessage } = require('../api/twilio');
+const sendEmail = require('../api/sendGrid');
 
 async function getAllUsers() {
     return await User.find();
@@ -22,6 +24,8 @@ async function createUser(UserInput) {
         user.facturapi_customer = facturapiCustomer;
         await user.save();
     }
+
+    await sendEmail(user.email, user.name);
 
     return user;
 }

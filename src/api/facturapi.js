@@ -30,6 +30,7 @@ module.exports = {
                     zip: '63100',
                 },
                 email: customer.email,
+                phone: customer.phone
             };
             return await facturapi.customers.create(facturapiCustomer);
         } catch (error) {
