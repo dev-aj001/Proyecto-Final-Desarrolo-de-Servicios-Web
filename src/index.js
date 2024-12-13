@@ -18,12 +18,10 @@ const startServer = async () => {
     typeDefs: [userTypeDefs, productTypeDefs, carritoTypeDefs],
     resolvers: [userResolvers, productResolvers, carritoResolvers]});
   
-    const { url } = await startStandaloneServer(server, { listen: { port } });
-    console.log(`🚀 Server listening at: ${url}`);
-
-    server.listen(port, () => {
-      console.log(`Server running on port ${port}`);
-    });
+     // Iniciar el servidor Apollo
+  const { url } = await server.listen({ port });
+  console.log(`🚀 Server running at: ${url}`);
+    
 };
 
 startServer();
