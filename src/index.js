@@ -1,6 +1,6 @@
 const { ApolloServer } = require('apollo-server');
 const mongoose = require('mongoose');
-
+const port = process.env.PORT || 3000;
 // Importar los esquemas y resolvers
 const productTypeDefs = require('./schemas/productSchema');
 const productResolvers = require('./resolvers/productResolver');
@@ -18,9 +18,9 @@ const startServer = async () => {
     typeDefs: [userTypeDefs, productTypeDefs, carritoTypeDefs],
     resolvers: [userResolvers, productResolvers, carritoResolvers]});
   
-  server.listen().then(({ url }) => {
-    console.log(`Servidor corriendo en ${url}`);
-  });
+    server.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+    });
 };
 
 startServer();
