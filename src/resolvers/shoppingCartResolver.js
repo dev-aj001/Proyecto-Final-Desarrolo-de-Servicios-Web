@@ -2,7 +2,7 @@ const shoppingCartService = require('../services/shoppingCartService');
 
 const resolvers = {
     Query: {
-        getShoppingCartById: () => shoppingCartService.getShoppingCartById(args._id),
+        getShoppingCartById: (_, args) => shoppingCartService.getShoppingCartById(args.id),
         getAllShoppingCartsByUser: (_, args) => shoppingCartService.getAllShoppingCartsByUser(args.userId),
     },
     Mutation: {
