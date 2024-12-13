@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { orderStatus, paymentStatus } = require('../utils/enums');
 
 const cartSchema = new mongoose.Schema({
     // Referencia al usuario por ID
@@ -35,7 +36,6 @@ const cartSchema = new mongoose.Schema({
     // Porcentaje de impuestos
     tax: {
         type: Number,
-        required: true,
         default: 0.16 // 16% de IVA por defecto
     },
     // Total antes de impuestos
@@ -64,6 +64,20 @@ const cartSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true
+    },
+    paymentMethod: {
+        type: String,
+        required: true
+    },
+    status: {
+        type: String,
+        enum: Object.values(orderStatus),
+        default: orderStatus.PENDING
+    },
+    // Informacion adicional
+    aditionalInfo: {
+        type: String,
+        required: false
     }
 });
 

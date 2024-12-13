@@ -1,6 +1,18 @@
 const { gql } = require('apollo-server');
+const { roles } = require('../utils/enums');
+const { categories } = require('../utils/enums');
 
 const typeDefs = gql`
+
+    # Definición del enum de roles
+    enum Roles {
+        ${Object.values(roles).join('\n')}
+    }
+
+    # Definición del enum de categorias
+    enum Categories {
+        ${Object.values(categories).join('\n')}
+    }
 
     # Definición del esquema de usuario
     type User {
@@ -8,8 +20,7 @@ const typeDefs = gql`
         name: String!
         email: String!
         password: String!
-        role: String!
-        tax_system: String!
+        role: Roles!
     }
 
     # Definición del esquema de producto
@@ -20,7 +31,7 @@ const typeDefs = gql`
         brand: String!
         price: Float!
         stock: Int!
-        category: String!
+        category: Categories!
         createdAt: String!
         imgs: [Image]!
         product_key: String!
@@ -39,9 +50,11 @@ const typeDefs = gql`
         _id: ID!
         user: User!
         items: [CartItem]!
+        subTotal: Float!
         total: Float!
         createdAt: String!
         closedAt: String
+        isActive: Boolean!
     }
 
     # Definición de la entrada para el item de carrito de compras
@@ -69,17 +82,21 @@ const typeDefs = gql`
         # Obtener un carrito de compras por ID
         getShoppingCartById(id: ID!): ShoppingCart
         # Obtener todos los carritos de compras de un usuario
-        getShoppingCartsByUser(userId: ID!): [ShoppingCart]
+        getAllShoppingCartsByUser(userId: ID!): [ShoppingCart]
     }
 
     type Mutation {
         # Crear un nuevo carrito de compras
         createShoppingCart(shoppingCart: ShoppingCartInput!): ShoppingCart
-        # Actualizar un carrito de compras
-        updateShoppingCart(id: ID!, shoppingCart: ShoppingCartUpdateInput!): ShoppingCart
+        # Agregar item
+        addItemToCart(_id: ID!, cartItem: CartItemInput!): ShoppingCart
+        # Actualizar item
+        updateItemQuantity(_id: ID!, productId: ID!, quantity: Int!): ShoppingCart
+        # Eliminar item
+        removeItemFromCart(_id: ID!, productId: ID!): ShoppingCart
         # Cerrar un carrito de compras
-        closeShoppingCart(id: ID!): ShoppingCart
-        # Eliminar un carrito de compras
-        deleteShoppingCart(id: ID!): ShoppingCart
+        closeShoppingCart(_id: ID!): ShoppingCart
     }
 `;
+
+module.exports = typeDefs;
