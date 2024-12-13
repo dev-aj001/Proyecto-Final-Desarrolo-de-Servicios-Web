@@ -263,6 +263,7 @@ const shoppingCartService = {
 
             const fileLink = await subir(filePath, "wasaaa-apicarrito-dsw", `facturas/${id}.zip`);
 
+            console.log("Enlace de la Factura:", fileLink, "filepath:", filePath);
             // Envía por correo
             await sendEmailFactura(cart.user.email, fileLink);
 
