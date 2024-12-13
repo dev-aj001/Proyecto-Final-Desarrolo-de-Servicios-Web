@@ -251,8 +251,11 @@ const shoppingCartService = {
 
             const filePath = await facturapi.downloadInvoice(id);
 
-            subir(filePath, "wasaaa-apicarrito-dsw", `facturas/${id}.zip`);
-            
+            const fileLink = await subir(filePath, "wasaaa-apicarrito-dsw", `facturas/${id}.zip`);
+
+            // Envía por correo
+            await sendEmailFactura(cart.user.email, fileLink);
+
             cart.status = orderStatus.CONFIRMED;
             cart.isActive = false;
             cart.closedAt = new Date();
@@ -270,10 +273,7 @@ const subir = async (filePath, bucketName, key) => {
         // Sube a S3
         const fileLink = await uploadToS3(filePath, bucketName, key);
 
-        // Envía por correo
-        await sendEmailFactura('arjaibanezpa@ittepic.edu.mx', fileLink);
-
-        console.log('Proceso completo');
+        return fileLink;
     } catch (error) {
         console.error('Error en el proceso:', error);
     }
