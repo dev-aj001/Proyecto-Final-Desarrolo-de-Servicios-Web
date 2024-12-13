@@ -1,8 +1,14 @@
 const { gql } = require('apollo-server');
 const { roles } = require('../utils/enums');
 const { categories } = require('../utils/enums');
+const { orderStatus } = require('../utils/enums');
 
 const typeDefs = gql`
+
+    # Definición del enum de estados
+    enum Status {
+        ${Object.values(orderStatus).join('\n')}
+    }
 
     # Definición del enum de roles
     enum Roles {
@@ -55,6 +61,9 @@ const typeDefs = gql`
         createdAt: String!
         closedAt: String
         isActive: Boolean!
+        paymentMethod: String!
+        status: Status!
+        aditionalInfo: String
     }
 
     # Definición de la entrada para el item de carrito de compras
@@ -68,6 +77,7 @@ const typeDefs = gql`
         user: ID!
         items: [CartItemInput]!
         tax: Float
+        paymentMethod: String
     }
 
     # Definición de la entrada para la actualizacion del carrito de compras

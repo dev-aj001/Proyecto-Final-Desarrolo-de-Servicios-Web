@@ -1,6 +1,8 @@
 const ShoppingCart = require('../models/shoppingCartModel'); // Modelo de carrito
 const Product = require('../models/productModel'); // Modelo de producto
+const facturapi = require('../api/facturapi');
 const User = require('../models/userModel'); // Modelo de usuario
+const { orderStatus } = require('../utils/enums');
 
 const shoppingCartService = {
 
@@ -42,6 +44,10 @@ const shoppingCartService = {
                 throw new Error("El usuario no existe.");
             }
 
+            if(user.facturapi_customer === undefined){
+                throw new Error("El usuario no tiene datos de facturación.");
+            }
+
             // Validación del impuesto
             if (cartInput.tax <= 0 || cartInput.tax > 1) {
                 throw new Error(`El impuesto debe ser un valor entre 0.0 y 1.0.`);
@@ -78,6 +84,8 @@ const shoppingCartService = {
             // Calcular subtotal y total
             cart.subTotal = totalPrice / (1 + cart.tax);
             cart.total = totalPrice;
+
+            cart.status = orderStatus.PENDING;
         
             // Guardar el carrito
         
@@ -190,28 +198,65 @@ const shoppingCartService = {
         return cart;
     },
 
-    async closeCart(cartId) {
-        const cart = await ShoppingCart.findById(cartId).populate('items.product');
-        if (!cart) {
-            throw new Error("El carrito no existe.");
-        }
-
-        for (const item of cart.items) {
-            const product = await Product.findById(item.product);
-            if (item.quantity > product.stock) {
-                throw new Error(`Stock insuficiente para el producto '${product.name}'.`);
+    async closeShoppingCart(cartId) {
+        try {
+            const cart = await ShoppingCart.findById(cartId)
+            .populate('user')
+            .populate('items.product');
+            
+            if (!cart) {
+                throw new Error("El carrito no existe.");
             }
-        }
 
-        for (const item of cart.items) {
-            const product = await Product.findById(item.product);
-            product.stock -= item.quantity;
-            await product.save();
-        }
+            for (const item of cart.items) {
+                const product = await Product.findById(item.product);
+                if (item.quantity > product.stock) {
+                    throw new Error(`Stock insuficiente para el producto '${product.name}'.`);
+                }
+            }
 
-        cart.closedAt = new Date();
-        await cart.save();
-        return cart;
+            for (const item of cart.items) {
+                const product = await Product.findById(item.product);
+                product.stock -= item.quantity;
+                await product.save();
+            }
+
+            const customer = {
+                legal_name: cart.user.facturapi_customer.legal_name,
+                tax_id: cart.user.facturapi_customer.tax_id,
+                tax_system: cart.user.facturapi_customer.tax_system,
+                email: cart.user.facturapi_customer.email,
+                address: cart.user.facturapi_customer.address,
+            }
+
+            const invoice = {
+                customer,
+                items: cart.items.map(item => ({
+                        quantity: item.quantity,
+                        product: {
+                            description: item.product.description,
+                            product_key: item.product.product_key,
+                            price: item.product.price
+                        }
+                })),
+                payment_form: "28",
+                use: "S01"
+            }
+
+            console.log("invoice", invoice);
+
+            //mandar la factura
+            await facturapi.createInvoice(invoice);
+
+            cart.status = orderStatus.CONFIRMED;
+            cart.isActive = false;
+            cart.closedAt = new Date();
+            await cart.save();
+            return cart;
+        } catch (error) {
+            console.error(error);
+            throw new Error(`Error al cerrar el carrito: ${error.message}`);
+        }
     }
 };
 

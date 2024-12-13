@@ -1,3 +1,5 @@
+const { create } = require('../models/shoppingCartModel');
+
 require('dotenv').config();
 const Facturapi = require('facturapi').default;
 
@@ -27,6 +29,7 @@ module.exports = {
                 address: customer.address || {
                     zip: '63100',
                 },
+                email: customer.email,
             };
             return await facturapi.customers.create(facturapiCustomer);
         } catch (error) {
@@ -49,5 +52,21 @@ module.exports = {
 
     deleteCustomer: async (id) => {
         return await facturapi.customers.del(id);
+    },
+
+    //--------------------------------------
+    // Factura
+
+    createInvoice: async (invoice) => {
+        try {
+            return await facturapi.invoices.create(invoice);
+        } catch (error) {
+            console.error('Error al crear la factura en Facturapi:', {
+                message: error.message,
+                stack: error.stack,
+                response: error.response ? error.response.data : null
+            });
+            throw new Error('No se pudo crear la factura en Facturapi.');
+        }
     },
 }

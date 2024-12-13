@@ -68,8 +68,6 @@ const typeDefs = gql`
         legal_name: String!
         tax_id: String!
         address: AddressInput!
-        email: String
-        phone: String
     }
 
     # Definición de la entrada para la creacion del usuario

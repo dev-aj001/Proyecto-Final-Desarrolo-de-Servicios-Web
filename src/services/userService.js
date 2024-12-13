@@ -28,17 +28,22 @@ async function createUser(UserInput) {
 
 async function deleteUser(userId) {
     
-    const user = await User.findByIdAndDelete(userId);
+    try {
+        const user = await User.findByIdAndDelete(userId);
 
-    if (!user) {
-        throw new Error("No se encontro el usuario");
+        if (!user) {
+            throw new Error("No se encontro el usuario");
+        }
+
+        if(user.facturapi_customer){
+            await facturapi.deleteCustomer(user.facturapi_customer.id);
+        }
+
+        return user;
+    } catch (error) {
+        console.error(error);
+        throw new Error(`Error al eliminar el usuario: ${error.message}`);
     }
-
-    if(user.facturapi_customer){
-        await facturapi.deleteCustomer(user.facturapi_customer.id);
-    }
-
-    return {user, message: "Usuario eliminado"};
 }
 
 async function createFacturapiCustomer(userId, customer) {
@@ -52,7 +57,9 @@ async function createFacturapiCustomer(userId, customer) {
     if(user.facturapi_customer){
         throw new Error("Este usuario ya esta registrado en facturapi");
     }else{
+        customer.email = user.email;
         const facturapiCustomer = await facturapi.createCustomer(customer);
+        console.log(facturapiCustomer);
         user.facturapi_customer = facturapiCustomer;
         await user.save();
     }

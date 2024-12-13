@@ -29,7 +29,8 @@ const facturapiCustomerSchema = new mongoose.Schema({
         municipality: String,
         state: String,
         country: String
-    }
+    },
+    email: String,
 },
     { _id: false } // Para indicar que no es un subdocumento
 )

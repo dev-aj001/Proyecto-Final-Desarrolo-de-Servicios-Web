@@ -65,10 +65,12 @@ const cartSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    // Tipo de pago
     paymentMethod: {
         type: String,
-        required: true
+        default: 'DEBIT'
     },
+    // Estado del carrito
     status: {
         type: String,
         enum: Object.values(orderStatus),
