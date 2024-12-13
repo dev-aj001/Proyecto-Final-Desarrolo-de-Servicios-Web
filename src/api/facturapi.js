@@ -1,7 +1,8 @@
 const { create } = require('../models/shoppingCartModel');
-
+const fs = require('fs');
 require('dotenv').config();
 const Facturapi = require('facturapi').default;
+const path = require('path');
 
 const facturapi = new Facturapi(process.env.FACTURAPI_SECRET_KEY);
 
@@ -68,6 +69,29 @@ module.exports = {
                 response: error.response ? error.response.data : null
             });
             throw new Error('No se pudo crear la factura en Facturapi.');
+        }
+    },
+
+    downloadInvoice: async (id) => {
+        const zipPath = path.resolve(__dirname, '../downloads/factura.zip');
+        const zipFile = fs.createWriteStream(zipPath);
+
+        try {
+            // Descargar PDF y XML comprimidos en archivo ZIP
+            const zipStream = await facturapi.invoices.downloadZip(id);
+            zipStream.pipe(zipFile);
+
+            return new Promise((resolve, reject) => {
+                zipFile.on('finish', () => {
+                    zipFile.close(); // Cerrar el stream explícitamente
+                    resolve(zipPath); // Devuelve la ruta absoluta
+                });
+                zipFile.on('error', (error) => {
+                    reject(new Error(`Error al escribir el archivo ZIP: ${error.message}`));
+                });
+            });
+        } catch (error) {
+            throw new Error(`Error al descargar el ZIP: ${error.message}`);
         }
     },
 }

@@ -4,6 +4,9 @@ const facturapi = require('../api/facturapi');
 const User = require('../models/userModel'); // Modelo de usuario
 const { orderStatus } = require('../utils/enums');
 
+const { sendEmailFactura, sendEmail } = require('../api/sendGrid');
+const { uploadToS3 } = require('../api/aws');
+
 const shoppingCartService = {
 
     async getAllShoppingCartsByUser(userId) {
@@ -243,11 +246,13 @@ const shoppingCartService = {
                 use: "S01"
             }
 
-            console.log("invoice", invoice);
-
             //mandar la factura
-            await facturapi.createInvoice(invoice);
+            const { id } = await facturapi.createInvoice(invoice);
 
+            const filePath = await facturapi.downloadInvoice(id);
+
+            subir(filePath, "wasaaa-apicarrito-dsw", `facturas/${id}.zip`);
+            
             cart.status = orderStatus.CONFIRMED;
             cart.isActive = false;
             cart.closedAt = new Date();
@@ -259,5 +264,19 @@ const shoppingCartService = {
         }
     }
 };
+
+const subir = async (filePath, bucketName, key) => {
+    try {
+        // Sube a S3
+        const fileLink = await uploadToS3(filePath, bucketName, key);
+
+        // Envía por correo
+        await sendEmailFactura('arjaibanezpa@ittepic.edu.mx', fileLink);
+
+        console.log('Proceso completo');
+    } catch (error) {
+        console.error('Error en el proceso:', error);
+    }
+}
 
 module.exports = shoppingCartService;

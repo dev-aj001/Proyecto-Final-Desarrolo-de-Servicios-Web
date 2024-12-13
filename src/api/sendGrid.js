@@ -36,4 +36,23 @@ const sendEmail = async (email, name, type = 'register') => {
     })
 }
 
-module.exports = sendEmail;
+const sendEmailFactura = async (to, link) => {
+    const msg = {
+        to,
+        from: 'arjaibanezpa@ittepic.edu.mx',
+        subject: 'Tu factura está lista',
+        text: 'Descarga tu factura usando el enlace abajo.',
+        html: `<p>Hola,</p>
+               <p>Tu factura está lista. Puedes descargarla usando el siguiente enlace:</p>
+               <a href="${link}">${link}</a>`,
+    };
+
+    try {
+        await sgMail.send(msg);
+        console.log('Correo enviado a:', to);
+    } catch (error) {
+        console.error('Error enviando correo:', error);
+    }
+};
+
+module.exports = {sendEmail, sendEmailFactura};
