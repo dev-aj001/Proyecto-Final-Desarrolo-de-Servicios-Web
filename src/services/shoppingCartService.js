@@ -101,25 +101,34 @@ const shoppingCartService = {
         }
     },
 
-    async addItemToCart(cartId, product, quantity ) {
-        const user = await User.findById(cartInput.user);
-
-        if (!user) {
-            throw new Error("El usuario no existe.");
-        }
-        if (quantity <= 0) {
-            throw new Error("La cantidad debe ser mayor a 0.");
-        }
+    async addItemToCart(cartId, item ) {
 
         const cart = await ShoppingCart.findById(cartId);
         if (!cart) {
             throw new Error("El carrito no existe.");
         }
 
+        const user = await User.findById(cart.user);
+
+        if (!user) {
+            throw new Error("El usuario no existe.");
+        }
+
+        const quantity = item.quantity;
+        console.log(quantity);
+
+        if (quantity <= 0) {
+            throw new Error("La cantidad debe ser mayor a 0.");
+        }
+
+        const product = item.product;
+
         const productData = await Product.findById(product);
         if (!productData) {
             throw new Error("El producto no existe.");
         }
+
+        console.log("productData", productData);
 
         if (quantity > productData.stock) {
             throw new Error(`Stock insuficiente para el producto '${productData.name}'.`);
@@ -145,7 +154,8 @@ const shoppingCartService = {
         cart.total = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
         cart.subTotal = cart.total/(1+cart.tax);
         await cart.save();
-        return await cart.populate('user').populate('items.product');
+
+        return await this.getShoppingCartById(cart._id);
     },
 
     async updateItemQuantity(cartId, productId, quantity) {
@@ -180,7 +190,7 @@ const shoppingCartService = {
         cart.total = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
         cart.subTotal = cart.total/(1+cart.tax);
         await cart.save();
-        return cart;
+        return this.getShoppingCartById(cart._id);
     },
 
     async removeItemFromCart(cartId, productId) {
