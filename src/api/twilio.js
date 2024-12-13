@@ -12,5 +12,14 @@ module.exports = {
             to: 'whatsapp:+5213241029185'
         })
         .then(message => console.log(message.sid));
+    },
+    sendWhatsappMessageRegister: (phone, message) => {
+        client.messages
+        .create({
+            body: 'Haz registrado tu cuenta con exito',
+            from: 'whatsapp:+14155238886',
+            to: 'whatsapp:+5213241029185'
+        })
+        .then(message => console.log(message.sid));
     }
 }

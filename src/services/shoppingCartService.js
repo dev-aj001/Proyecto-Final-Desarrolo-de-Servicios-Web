@@ -6,6 +6,7 @@ const { orderStatus } = require('../utils/enums');
 
 const { sendEmailFactura, sendEmail } = require('../api/sendGrid');
 const { uploadToS3 } = require('../api/aws');
+const { sendWhatsappMessage } = require('../api/twilio');
 
 const shoppingCartService = {
 
@@ -268,6 +269,8 @@ const shoppingCartService = {
             console.log("Enlace de la Factura:", fileLink, "filepath:", filePath);
             // Envía por correo
             await sendEmailFactura(cart.user.email, fileLink);
+
+            await sendWhatsappMessage(cart.user.phone, "Tu compra ha sido realizada con exito");
 
             cart.status = orderStatus.CONFIRMED;
             cart.isActive = false;

@@ -1,6 +1,6 @@
 const User = require('../models/userModel');
 const facturapi = require('../api/facturapi');
-const { sendWhatsappMessage } = require('../api/twilio');
+const { sendWhatsappMessageRegister } = require('../api/twilio');
 const sendEmail = require('../api/sendGrid');
 
 async function getAllUsers() {
@@ -12,6 +12,9 @@ async function getUserById(userId) {
     if(!user){ 
         throw new Error("No se encontro el usuario");
     }
+
+    sendWhatsappMessageRegister(user.phone, user.name);
+
     return user;
 }
 
