@@ -27,6 +27,8 @@ const shoppingCartService = {
     },
 
     async getShoppingCartById(cartId) {
+
+        console.log("cartId", cartId);
         
         const cart = await ShoppingCart.findById(cartId)
         .populate('items.product')
